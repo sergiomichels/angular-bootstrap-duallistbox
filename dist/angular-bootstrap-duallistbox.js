@@ -1,6 +1,6 @@
 /**
  * angular-bootstrap-duallistbox
- * @version v0.1.0 - 2015-06-13
+ * @version v0.1.0 - 2016-09-26
  * @author Francesco Pontillo (francescopontillo@gmail.com)
  * @link https://github.com/frapontillo/angular-bootstrap-duallistbox
  * @license Apache License 2.0
@@ -13,7 +13,20 @@ angular.module('frapontillo.bootstrap-duallistbox', []);
 angular.module('frapontillo.bootstrap-duallistbox').directive('bsDuallistbox', [
   '$compile',
   '$timeout',
-  function ($compile, $timeout) {
+  '$injector',
+  function ($compile, $timeout, $injector) {
+    function getTranslateService() {
+      try {
+        return $injector.get('$translate');
+      } catch (error) {
+        return undefined;
+      }
+    }
+    var $translate = getTranslateService(), translateAvailable = angular.isDefined($translate), defaultVal = function (defaultValue, key) {
+        if (translateAvailable) {
+          return $translate.instant(key) || defaultValue;
+        }
+      };
     return {
       restrict: 'A',
       require: 'ngModel',
@@ -43,7 +56,7 @@ angular.module('frapontillo.bootstrap-duallistbox').directive('bsDuallistbox', [
             },
             'filterClear': {
               changeFn: 'setFilterTextClear',
-              defaultValue: 'show all'
+              defaultValue: defaultVal('show all', 'duallistbox.filterClear')
             },
             'filterPlaceholder': 'setFilterPlaceHolder',
             'filterValues': {
@@ -56,23 +69,41 @@ angular.module('frapontillo.bootstrap-duallistbox').directive('bsDuallistbox', [
               transformFn: getBooleanValue
             },
             'preserveSelection': 'setPreserveSelectionOnMove',
-            'moveSelectedLabel': 'setMoveSelectedLabel',
-            'moveAllLabel': 'setMoveAllLabel',
-            'removeSelectedLabel': 'setRemoveSelectedLabel',
-            'removeAllLabel': 'setRemoveAllLabel',
-            'selectedListLabel': 'setSelectedListLabel',
-            'nonSelectedListLabel': 'setNonSelectedListLabel',
+            'moveSelectedLabel': {
+              changeFn: 'setMoveSelectedLabel',
+              defaultValue: defaultVal(null, 'duallistbox.moveSelectedLabel')
+            },
+            'moveAllLabel': {
+              changeFn: 'setMoveAllLabel',
+              defaultValue: defaultVal(null, 'duallistbox.moveAllLabel')
+            },
+            'removeSelectedLabel': {
+              changeFn: 'setRemoveSelectedLabel',
+              defaultValue: defaultVal(null, 'duallistbox.removeSelectedLabel')
+            },
+            'removeAllLabel': {
+              changeFn: 'setRemoveAllLabel',
+              defaultValue: defaultVal(null, 'duallistbox.removeAllLabel')
+            },
+            'selectedListLabel': {
+              changeFn: 'setSelectedListLabel',
+              defaultValue: defaultVal(null, 'duallistbox.selectedListLabel')
+            },
+            'nonSelectedListLabel': {
+              changeFn: 'setNonSelectedListLabel',
+              defaultValue: defaultVal(null, 'duallistbox.nonSelectedListLabel')
+            },
             'infoAll': {
               changeFn: 'setInfoText',
-              defaultValue: 'Showing all {0}'
+              defaultValue: defaultVal('Showing all {0}', 'duallistbox.infoAll')
             },
             'infoFiltered': {
               changeFn: 'setInfoTextFiltered',
-              defaultValue: '<span class="label label-warning">Filtered</span> {0} from {1}'
+              defaultValue: defaultVal('<span class="label label-warning">Filtered</span> {0} from {1}', 'duallistbox.infoFiltered')
             },
             'infoEmpty': {
               changeFn: 'setInfoTextEmpty',
-              defaultValue: 'Empty list'
+              defaultValue: defaultVal('Empty list', 'infoEmpty')
             }
           };
         // The duallistbox element
